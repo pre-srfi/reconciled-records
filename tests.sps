@@ -22,8 +22,8 @@
 ;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(import (except (rnrs (6)) define-record-type)
-	(define-record-type))
+(import (rnrs base (6))
+	(srfi :237))
 
 (define-record-type foo
   (make-foo x)
@@ -74,6 +74,31 @@
 (assert (equal? 7 (let ([bar (make-bar 5 6)])
                     (foo-set-y! bar 7)
                     (foo-y bar))))
+
+(define-record-type rec1
+  (fields a)
+  (protocol
+   (lambda (p)
+     (lambda (a/2)
+       (p (* 2 a/2))))))
+
+(define rec2
+  (make-record-descriptor
+   'rec2 rec1 #f #f #f '#((immutable b))
+   (lambda (n)
+     (lambda (a/2 b)
+       ((n a/2) b)))))
+(define make-rec2 (record-constructor rec2))
+(define rec2? (record-predicate rec2))
+(define rec2-b (record-accessor rec2 0))
+
+(define-record-type rec3
+  (parent rec2)
+  (fields c)
+  (protocol
+   (lambda (n)
+     (lambda (c)
+       ((n c c) c)))))
 
 ;; Local Variables:
 ;; mode: scheme
